@@ -143,11 +143,11 @@ func updateCookie() {
 		if len(cks[i].WsKey) > 0 {
 			time.Sleep(10 * time.Second)
 			ck := cks[i]
-			//JdCookie{}.Push(fmt.Sprintf("更新账号账号，%s", ck.Nickname))
+			//JdCookie{}.Push(fmt.Sprintf("更新账号成功，%s", ck.Nickname))
 			var pinky = fmt.Sprintf("pin=%s;wskey=%s;", ck.PtPin, ck.WsKey)
 			rsp := cmd(fmt.Sprintf(`python3 test.py "%s"`, pinky), &Sender{})
 			if strings.Contains(rsp, "错误") {
-				ck.Push(fmt.Sprintf("Wskey失效账号，%s", ck.PtPin))
+				ck.Push(fmt.Sprintf("Wskey失效，%s", ck.PtPin))
 				(&JdCookie{}).Push(fmt.Sprintf("Wskey失效，%s", ck.PtPin))
 			} else {
 				ss := regexp.MustCompile(`pt_key=([^;=\s]+);pt_pin=([^;=\s]+)`).FindAllStringSubmatch(rsp, -1)
@@ -170,7 +170,7 @@ func updateCookie() {
 									logs.Info(msg)
 								} else {
 									NewJdCookie(&ck)
-									msg := fmt.Sprintf("添加账号，账号名:%s", ck.PtPin)
+									msg := fmt.Sprintf("添加账号成功，账号名:%s", ck.PtPin)
 									logs.Info(msg)
 								}
 							}
@@ -233,7 +233,7 @@ func CookieOK(ck *JdCookie) bool {
 							}
 							if nck, err := GetJdCookie(ck.PtPin); err == nil {
 								nck.InPool(ck.PtKey)
-								msg := fmt.Sprintf("更新账号，%s", ck.PtPin)
+								msg := fmt.Sprintf("更新账号成功，%s", ck.PtPin)
 								(&JdCookie{}).Push(msg)
 								logs.Info(msg)
 							} else {
