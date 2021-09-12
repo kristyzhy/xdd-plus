@@ -156,7 +156,7 @@ var codeSignals = []CodeSignal{
 		},
 	},
 	{
-		Command: []string{"coin", "余额", "yu", "yue"},
+		Command: []string{"余额"},
 		Admin:   true,
 		Handle: func(sender *Sender) interface{} {
 			return fmt.Sprintf("余额%d", GetCoin(sender.UserID))
@@ -185,7 +185,7 @@ var codeSignals = []CodeSignal{
 		},
 	},
 	{
-		Command: []string{"更新账号", "Whiskey更新", "给老子更新"},
+		Command: []string{"更新账号", "wskey更新"},
 		Admin:   true,
 		Handle: func(sender *Sender) interface{} {
 			sender.Reply("更新所有账号")
@@ -261,24 +261,6 @@ var codeSignals = []CodeSignal{
 			return "已取消管理员"
 		},
 	},
-	//{
-	//	Command: []string{"按许愿币更新排名"},
-	//	Admin:   true,
-	//	Handle: func(sender *Sender) interface{} {
-	//		cookies:= GetJdCookies()
-	//		for i := range cookies {
-	//			cookie := cookies[i]
-	//			if cookie.QQ {
-	//
-	//			}
-	//			cookie.Update(Priority,cookie.)
-	//		}
-	//		sender.handleJdCookies(func(ck *JdCookie) {
-	//			sender.Reply(ck.Query())
-	//		})
-	//		return "已更新排行"
-	//	},
-	//},
 	{
 		Command: []string{"run", "执行", "运行"},
 		Admin:   true,
@@ -432,7 +414,7 @@ var codeSignals = []CodeSignal{
 		},
 	},
 	{
-		Command: []string{"tool", "工具人", "unhelp", "取消助力"},
+		Command: []string{"取消助力"},
 		Admin:   true,
 		Handle: func(sender *Sender) interface{} {
 			sender.handleJdCookies(func(ck *JdCookie) {
