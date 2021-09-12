@@ -11,9 +11,9 @@ import (
 	"github.com/beego/beego/v2/server/web/context"
 
 	"github.com/beego/beego/v2/server/web"
-	"github.com/cdle/xdd/controllers"
-	"github.com/cdle/xdd/models"
-	"github.com/cdle/xdd/qbot"
+	"github.com/kristyzhy/xdd-plus/controllers"
+	"github.com/kristyzhy/xdd-plus/models"
+	"github.com/kristyzhy/xdd-plus/qbot"
 )
 
 var theme = ""
@@ -27,7 +27,7 @@ func main() {
 	})
 	web.Get("/", func(ctx *context.Context) {
 		if models.Config.Theme == "" {
-			models.Config.Theme = models.GhProxy + "https://raw.githubusercontent.com/764763903a/xdd-plus/main/theme/admin.html"
+			models.Config.Theme = models.GhProxy + "https://raw.githubusercontent.com/kristyzhy/xdd-plus/main/theme/admin.html"
 		}
 		if theme != "" {
 			ctx.WriteString(theme)
