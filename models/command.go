@@ -208,7 +208,7 @@ var codeSignals = []CodeSignal{
 		},
 	},
 	{
-		Command: []string{"查询", "query"},
+		Command: []string{"查询2", "query"},
 		Handle: func(sender *Sender) interface{} {
 			sender.handleJdCookies(func(ck *JdCookie) {
 				sender.Reply(ck.Query())
@@ -217,7 +217,7 @@ var codeSignals = []CodeSignal{
 		},
 	},
 	{
-		Command: []string{"查询2", "query"},
+		Command: []string{"查询", "query"},
 		Handle: func(sender *Sender) interface{} {
 			sender.handleJdCookies(func(ck *JdCookie) {
 				sender.Reply(ck.Query1())
