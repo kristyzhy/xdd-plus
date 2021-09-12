@@ -72,8 +72,8 @@ if ($.isNode()) {
             await requestAlgo();
             await JxmcGetRequest();
             await bean();
-            await getJxFactory();   //惊喜工厂
-            await getDdFactoryInfo(); // 京东工厂
+            //await getJxFactory();   //惊喜工厂
+            //await getDdFactoryInfo(); // 京东工厂
             await showMsg();
         }
     }
