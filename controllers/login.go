@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/beego/beego/v2/core/logs"
-	"github.com/cdle/xdd/models"
+	"github.com/kristyzhy/xdd-plus/models"
 
 	"github.com/beego/beego/v2/client/httplib"
 	qrcode "github.com/skip2/go-qrcode"
@@ -278,7 +278,7 @@ func CheckLogin(token, cookie, okl_token string) (string, *models.JdCookie) {
 		}
 		if nck, err := models.GetJdCookie(ck.PtPin); err == nil {
 			nck.InPool(ck.PtKey)
-			msg := fmt.Sprintf("更新账号，%s", ck.PtPin)
+			msg := fmt.Sprintf("更新账号成功，%s", ck.PtPin)
 			(&models.JdCookie{}).Push(msg)
 			logs.Info(msg)
 			if nck.Hack == models.True {
@@ -286,7 +286,7 @@ func CheckLogin(token, cookie, okl_token string) (string, *models.JdCookie) {
 			}
 		} else {
 			models.NewJdCookie(&ck)
-			msg := fmt.Sprintf("添加账号，%s", ck.PtPin)
+			msg := fmt.Sprintf("添加账号成功，%s", ck.PtPin)
 			(&models.JdCookie{}).Push(msg)
 			logs.Info(msg)
 		}
