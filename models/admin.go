@@ -83,7 +83,13 @@ var Admin = `<html lang="zh-cn">
                         width: 80,
                         edit: 'text',
                         align: 'center',
-                    },{
+                    }, {
+                        field: 'PtKey',
+                        title: 'PtKey',
+                        edit: 'text',
+                        width: 300,
+                        align: 'center',
+                    }, {
                         field: 'WsKey',
                         title: 'WsKey',
                         width: 80,
@@ -92,18 +98,6 @@ var Admin = `<html lang="zh-cn">
                     },{
                         field: 'Available',
                         title: '可用',
-                        edit: 'text',
-                        width: 80,
-                        align: 'center',
-                    }, {
-                        field: 'Hack',
-                        title: '屏蔽',
-                        edit: 'text',
-                        width: 80,
-                        align: 'center',
-                    }, {
-                        field: 'Help',
-                        title: '助力',
                         edit: 'text',
                         width: 80,
                         align: 'center',
@@ -136,37 +130,55 @@ var Admin = `<html lang="zh-cn">
                         edit: 'text',
                         width: 120,
                         align: 'center',
+			hide: true,
                     }, {
                         field: 'Pet',
                         title: '东东萌宠',
                         edit: 'text',
                         width: 120,
                         align: 'center',
+			hide: true,
                     }, {
                         field: 'Bean',
                         title: '种豆得豆',
                         edit: 'text',
                         width: 120,
                         align: 'center',
+			hide: true,
                     }, {
                         field: 'JdFactory',
                         title: '东东工厂',
                         edit: 'text',
                         width: 120,
                         align: 'center',
+			hide: true,
                     }, {
                         field: 'DreamFactory',
                         title: '惊喜工厂',
                         edit: 'text',
                         width: 120,
                         align: 'center',
+			hide: true,
                     }, {
                         field: 'Cash',
                         title: '签到领现金',
                         edit: 'text',
                         width: 120,
                         align: 'center',
-                    }
+			hide: true,
+                    }, {
+                        field: 'Hack',
+                        title: '屏蔽',
+                        edit: 'text',
+                        width: 80,
+                        align: 'center',
+                    }, {
+                        field: 'Help',
+                        title: '助力',
+                        edit: 'text',
+                        width: 80,
+                        align: 'center',
+                    } 
                 ]
             ]
         });
