@@ -1,200 +1,77 @@
 package controllers
 
 import (
-	"encoding/json"
-	"github.com/beego/beego/v2/core/logs"
-	beego "github.com/beego/beego/v2/server/web"
 	"github.com/kristyzhy/xdd-plus/models"
-	"github.com/go-playground/locales/zh"
-	ut "github.com/go-playground/universal-translator"
-	"gopkg.in/go-playground/validator.v9"
-	zh_translations "gopkg.in/go-playground/validator.v9/translations/zh"
-	"net/http"
-	"strconv"
-	"strings"
 )
 
-var validate *validator.Validate
-var trans ut.Translator
-
-func init() {
-	//验证器注册翻译器
-	var zhCh = zh.New()
-	validate = validator.New()
-	var uni = ut.New(zhCh)
-	trans, _ = uni.GetTranslator("zh")
-	zh_translations.RegisterDefaultTranslations(validate, trans)
+type AccountController struct {
+	BaseController
 }
 
-//BaseController 基础控制器
-type BaseController struct {
-	beego.Controller
-	PtPin  string
-	Master bool
+func (c *AccountController) NextPrepare() {
+	c.Logined()
 }
 
-//NextPrepare 下一个准备
-type NextPrepare interface {
-	NextPrepare()
-}
-
-//Prepare 准备
-func (c *BaseController) Prepare() {
-	// c.Ctx.ResponseWriter.Header().Add("Master-IP-Address", models.GetMasteraddr())
-	if app, ok := c.AppController.(NextPrepare); ok {
-		app.NextPrepare()
-	}
-}
-
-//Response 响应
-func (c *BaseController) Response(ps ...interface{}) { //数据、信息、状态码
-	rsp := struct {
-		//状态码
-		Code int `json:"code"` // 0 成功 1 失败
-		//数据
-		Data interface{} `json:"data"`
-		//描述信息
-		Msg string `json:"msg"`
-	}{}
-	switch len(ps) {
-	case 3:
-		rsp.Code = ps[2].(int)
-		fallthrough
-	case 2:
-		switch ps[1].(type) {
-		case string:
-			rsp.Msg = ps[1].(string)
-		case error:
-			rsp.Msg = ps[1].(error).Error()
+func (c *AccountController) List() {
+	var page = c.GetQueryInt("page")
+	var limit = c.GetQueryInt("limit")
+	var cks = models.GetJdCookies()
+	if !c.Master {
+		tmp := cks
+		cks = []models.JdCookie{}
+		for _, ck := range tmp {
+			if ck.PtPin == c.PtPin {
+				cks = append(cks, ck)
+				break
+			}
 		}
-		fallthrough
-	case 1:
-		rsp.Data = ps[0]
 	}
-	c.Data["json"] = rsp
+	var len = len(cks)
+	var total = []int{len}
+	if page == 0 {
+		page = 1
+	}
+	if limit == 0 {
+		limit = 1
+	}
+	var from = (page - 1) * limit
+	var to = page * limit
+	if from >= len-1 {
+		from = len - 1
+	}
+	if to >= len {
+		to = len
+	}
+	if from < 0 {
+		from = 0
+	}
+	var data = cks[from:to]
+	c.Data["json"] = map[string]interface{}{
+		"code":    200,
+		"data":    data,
+		"message": total,
+	}
 	c.ServeJSON()
-	c.StopRun()
 }
 
-//ResponseError 响应错误
-func (c *BaseController) ResponseError(ps ...interface{}) *BaseController {
-	if ps[0] == nil {
-		return c
-	}
-	// var status = http.StatusBadRequest
-	var text = ""
-
-	for _, p := range ps {
-		switch t := p.(type) {
-		case int: //状态码
-			// status = t
-			break
-		case error: //错误
-			text = t.Error()
-			break
-		case string: //字符描述
-			text = t
-			break
+func (c *AccountController) CreateOrUpdate() {
+	ps := &models.JdCookie{}
+	c.Validate(ps)
+	if ps.PtPin != "" {
+		ps.Pool = ""
+		if !c.Master {
+			ps.Priority = 0
+			ps.PtKey = ""
+			ps.PtPin = c.PtPin
 		}
+		ps.Updates(*ps)
 	}
-	// c.Ctx.ResponseWriter.WriteHeader(status)
-	// if text != "" {
-	// 	c.Ctx.WriteString(text)
-	// }
-	c.Response(nil, text, 1)
-	// c.StopRun()
-	return nil
+	go func() {
+		models.Save <- &models.JdCookie{}
+	}()
+	c.Response(nil, "操作成功")
 }
 
-//Logined 登录
-func (c *BaseController) Logined() *BaseController {
-	if v := c.GetSession("pin"); v == nil {
-		c.Ctx.Redirect(302, "/")
-		c.StopRun()
-	} else {
-		logs.Warn("登录成功")
-		c.PtPin = v.(string)
-		logs.Info(models.Config.Master)
-		if strings.EqualFold(models.Config.Master, v.(string)) {
-			c.Master = true
-		}
-	}
-	return c
-}
-
-//Validate 表单验证
-func (c *BaseController) Validate(ps interface{}) *BaseController {
-	c.ResponseError(json.Unmarshal(c.Ctx.Input.CopyBody(10000000), ps), http.StatusBadRequest)
-	if err := validate.Struct(ps); err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			c.ResponseError(err.Translate(trans), http.StatusBadRequest)
-		}
-	}
-	return c
-}
-
-//GetPathInt64
-func (c *BaseController) GetPathInt64(v string) int64 {
-	r := c.Ctx.Input.Param(":" + v)
-	if r == "" {
-		return 0
-	}
-	i, err := strconv.Atoi(r)
-	c.ResponseError(err)
-	return int64(i)
-}
-
-//GetPathInt
-func (c *BaseController) GetPathInt(v string) int {
-	r := c.Ctx.Input.Param(":" + v)
-	if r == "" {
-		return 0
-	}
-	i, err := strconv.Atoi(r)
-	c.ResponseError(err)
-	return i
-}
-
-//GetPathInt32
-func (c *BaseController) GetPathInt32(v string) int32 {
-	r := c.Ctx.Input.Param(":" + v)
-	if r == "" {
-		return 0
-	}
-	i, err := strconv.Atoi(r)
-	c.ResponseError(err)
-	return int32(i)
-}
-
-//GetQueryInt64
-func (c *BaseController) GetQueryInt64(v string) int64 {
-	r := c.GetString(v)
-	if r == "" {
-		return 0
-	}
-	i, err := strconv.Atoi(r)
-	c.ResponseError(err)
-	return int64(i)
-}
-
-//GetQueryInt
-func (c *BaseController) GetQueryInt(v string) int {
-	r := c.GetString(v)
-	if r == "" {
-		return 0
-	}
-	i, err := strconv.Atoi(r)
-	c.ResponseError(err)
-	return i
-}
-
-//GetQueryInt32
-func (c *BaseController) GetQueryInt32(v string) int32 {
-	r := c.GetString(v)
-	if r == "" {
-		return 0
-	}
-	i, err := strconv.Atoi(r)
-	c.ResponseError(err)
-	return int32(i)
+func (c *AccountController) Admin() {
+	c.Ctx.WriteString(models.Admin)
 }
