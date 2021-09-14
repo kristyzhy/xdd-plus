@@ -156,6 +156,37 @@ var codeSignals = []CodeSignal{
 		},
 	},
 	{
+		Command: []string{"清零"},
+		Admin:   true,
+		Handle: func(sender *Sender) interface{} {
+			sender.handleJdCookies(func(ck *JdCookie) {
+				ck.Update(Priority, 1)
+				
+			})
+			sender.Reply("优先级已清零")
+			return nil
+		},
+	},
+	{
+		Command: []string{"更新优先级"},
+		Admin:   true,
+		Handle: func(sender *Sender) interface{} {
+			coin:=GetCoin(sender.UserID)
+			t:=time.Now()
+			if t.Weekday().String()=="Monday"{
+				sender.handleJdCookies(func(ck *JdCookie) {
+					ck.Update(Priority, coin)
+				})
+				sender.Reply("优先级已更新")
+				ClearCoin(sender.UserID)
+			}else{
+					sender.Reply("等周一再更新呆瓜")
+				}
+			return nil
+		},
+	},
+
+	{
 		Command: []string{"coin", "余额", "yu", "yue"},
 		Admin:   true,
 		Handle: func(sender *Sender) interface{} {
@@ -460,29 +491,31 @@ var codeSignals = []CodeSignal{
 		Admin:   true,
 		Handle: func(sender *Sender) interface{} {
 			sender.handleJdCookies(func(ck *JdCookie) {
-				var pinky = fmt.Sprintf("pin=%s;wskey=%s;", ck.PtPin, ck.WsKey)
-				rsp := cmd(fmt.Sprintf(`python3 test.py "%s"`, pinky), &Sender{})
-				ss := regexp.MustCompile(`pt_key=([^;=\s]+);pt_pin=([^;=\s]+)`).FindAllStringSubmatch(rsp, -1)
-				if len(ss) > 0 {
-					for _, s := range ss {
+				if len(ck.WsKey) > 0 {
+					var pinky = fmt.Sprintf("pin=%s;wskey=%s;", ck.PtPin, ck.WsKey)
+					rsp := cmd(fmt.Sprintf(`python3 test.py "%s"`, pinky), &Sender{})
+					if len(rsp) > 0 {
+						ptKey := FetchJdCookieValue("pt_key", rsp)
+						ptPin := FetchJdCookieValue("pt_pin", rsp)
 						ck := JdCookie{
-							PtKey: s[1],
-							PtPin: s[2],
+							PtKey: ptKey,
+							PtPin: ptPin,
 						}
 						if nck, err := GetJdCookie(ck.PtPin); err == nil {
 							nck.InPool(ck.PtKey)
-							msg := fmt.Sprintf("更新账号，%s", ck.PtPin)
-							(&JdCookie{}).Push(msg)
+							msg := fmt.Sprintf("更新账号成功，%s", ck.PtPin)
+							sender.Reply(msg)
 							logs.Info(msg)
 						} else {
-							if Cdle {
-								ck.Hack = True
-							}
-							(&JdCookie{}).Push("转换失败")
+							sender.Reply("转换失败")
 						}
+					} else {
+						sender.Reply(fmt.Sprintf("Wskey失效，%s", ck.Nickname))
 					}
+				} else {
+					sender.Reply(fmt.Sprintf("Wskey为空，%s", ck.Nickname))
 				}
-				sender.Reply(fmt.Sprintf("已更新指定账号%s", ck.Nickname))
+
 			})
 			return nil
 		},
