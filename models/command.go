@@ -255,6 +255,7 @@ var codeSignals = []CodeSignal{
 	{
 		Command: []string{"查询", "query"},
 		Handle: func(sender *Sender) interface{} {
+			sender.Reply("开始查询，请稍候！此查询时间较久，请耐心等待，如长时间无响应，可以尝试回复【查询2】")
 			sender.handleJdCookies(func(ck *JdCookie) {
 				sender.Reply(ck.Query1())
 			})
