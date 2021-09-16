@@ -94,7 +94,7 @@ var handleMessage = func(msgs ...interface{}) interface{} {
 			if strings.Contains(msg, "wskey=") {
 				rsp := cmd(fmt.Sprintf(`python3 test.py "%s"`, msg), &Sender{})
 				logs.Info(rsp)
-				ss1 := regexp.MustCompile(`pin=([^;=\s]+);.*?wskey=([^;=\s]+);`).FindAllStringSubmatch(msg, -1)
+				ss1 := regexp.MustCompile(`pin=([^;=\s]+);wskey=([^;=\s]+)`).FindAllStringSubmatch(msg, -1)
 				if strings.Contains(rsp, "错误") {
 					logs.Error("wskey错误")
 					sender.Reply(fmt.Sprintf("wskey错误"))
@@ -108,7 +108,7 @@ var handleMessage = func(msgs ...interface{}) interface{} {
 								WsKey: s[2],
 							}
 
-							ss := regexp.MustCompile(`pt_key=([^;=\s]+);.*?pt_pin=([^;=\s]+);`).FindAllStringSubmatch(rsp, -1)
+							ss := regexp.MustCompile(`pt_key=([^;=\s]+);pt_pin=([^;=\s]+)`).FindAllStringSubmatch(rsp, -1)
 							for _, s1 := range ss {
 								ck.PtPin = s1[2]
 								ck.PtKey = s1[1]
