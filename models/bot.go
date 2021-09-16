@@ -105,7 +105,7 @@ var handleMessage = func(msgs ...interface{}) interface{} {
 			}
 		}
 		{
-			ss := regexp.MustCompile(`pin=([^;=\s]+);wskey=([^;=\s]+)`).FindAllStringSubmatch(msg, -1)
+			ss := regexp.MustCompile(`pin=([^;=\s]+);wskey=([^;=\s]+);`).FindAllStringSubmatch(msg, -1)
 			if len(ss) > 0 {
 				for _, s := range ss {
 					wkey := "pin=" + s[1] + ";wskey=" + s[2] + ";"
@@ -226,7 +226,7 @@ var handleMessage = func(msgs ...interface{}) interface{} {
 			}
 		}
 		{ //
-			ss := regexp.MustCompile(`pt_key=([^;=\s]+);pt_pin=([^;=\s]+)`).FindAllStringSubmatch(msg, -1)
+			ss := regexp.MustCompile(`pt_key=([^;=\s]+);pt_pin=([^;=\s]+);`).FindAllStringSubmatch(msg, -1)
 
 			if len(ss) > 0 {
 
