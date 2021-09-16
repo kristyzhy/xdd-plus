@@ -130,12 +130,34 @@ var handleMessage = func(msgs ...interface{}) interface{} {
 							}
 							if nck, err := GetJdCookie(ck.PtPin); err == nil {
 								nck.InPool(ck.PtKey)
-								msg := fmt.Sprintf("更新账号成功，%s", ck.PtPin)
-								if sender.IsQQ() {
-									ck.Update(QQ, ck.QQ)
+								if nck.WsKey == "" || len(nck.WsKey) == 0 {
+									nck.Updates(JdCookie{
+										WsKey: ck.WsKey,
+									})
+									if sender.IsQQ() {
+										ck.Update(QQ, ck.QQ)
+									}
+									nck.Update(PtKey, ck.PtKey)
+									msg := fmt.Sprintf("已保存WsKey，并更新账号%s成功", ck.PtPin)
+									sender.Reply(fmt.Sprintf(msg))
+									(&JdCookie{}).Push(msg)
+									logs.Info(msg)
+								} else {
+									if nck.WsKey == ck.WsKey {
+										msg := fmt.Sprintf("重复写入")
+										sender.Reply(fmt.Sprintf(msg))
+										(&JdCookie{}).Push(msg)
+										logs.Info(msg)
+									} else {
+										nck.Updates(JdCookie{
+											WsKey: ck.WsKey,
+										})
+										msg := fmt.Sprintf("已更新WsKey，并更新账号%s成功", ck.PtPin)
+										sender.Reply(fmt.Sprintf(msg))
+										(&JdCookie{}).Push(msg)
+										logs.Info(msg)
+									}
 								}
-								sender.Reply(fmt.Sprintf(msg))
-								(&JdCookie{}).Push(msg)
 							} else {
 								NewJdCookie(&ck)
 
