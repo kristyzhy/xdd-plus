@@ -102,7 +102,8 @@ var codeSignals = []CodeSignal{
 		},
 	},
 	{
-		Command: []string{"打卡"},
+		Command: []string{"/打卡"},
+		Admin:   true,
 		Handle: func(sender *Sender) interface{} {
 			//if sender.Type == "tgg" {
 			//	sender.Type = "tg"
@@ -155,6 +156,46 @@ var codeSignals = []CodeSignal{
 				}
 				sender.Reply(fmt.Sprintf("你是打卡第%d人，奖励%d个互助值，互助值余额%d。", total[0]+1, coin, u.Coin))
 				ReturnCoin(sender)
+				return ""
+			}
+			return nil
+		},
+	},
+	{
+		Command: []string{"签到"},
+		Handle: func(sender *Sender) interface{} {
+			zero, _ := time.ParseInLocation("2006-01-02", time.Now().Local().Format("2006-01-02"), time.Local)
+			var u User
+			var ntime = time.Now()
+			var first = false
+			total := []int{}
+			err := db.Where("number = ?", sender.UserID).First(&u).Error
+			if err != nil {
+				first = true
+				u = User{
+					Class:    sender.Type,
+					Number:   sender.UserID,
+					Coin:     1,
+					ActiveAt: ntime,
+					Womail:   "",
+				}
+				if err := db.Create(&u).Error; err != nil {
+					return err.Error()
+				}
+			} else {
+				if zero.Unix() > u.ActiveAt.Unix() {
+					first = true
+				} else {
+					return fmt.Sprintf("你今天已经签到过了，请明天再来")
+				}
+			}
+			if first {
+				if u.Womail != "" {
+				    sender.Reply(fmt.Sprintf("沃邮箱签到开始，请耐心等待，稍后将通知你签到结果！"))
+					rsp := cmd(fmt.Sprintf(`python3 womail.py "%s"`, u.Womail), &Sender{})
+					sender.Reply(fmt.Sprintf("%s", rsp))
+				}
+				sender.Reply(fmt.Sprintf("请先根据帮助内的教程提交沃邮箱链接，再发送签到！"))
 				return ""
 			}
 			return nil
