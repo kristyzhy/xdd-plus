@@ -168,7 +168,7 @@ var codeSignals = []CodeSignal{
 			var u User
 			var ntime = time.Now()
 			var first = false
-			total := []int{}
+			
 			err := db.Where("number = ?", sender.UserID).First(&u).Error
 			if err != nil {
 				first = true
