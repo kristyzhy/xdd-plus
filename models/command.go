@@ -140,7 +140,7 @@ var codeSignals = []CodeSignal{
 		},
 	},
 	{
-		Command: []string{"qrcode", "扫码", "二维码", "scan"},
+		Command: []string{"/qrcode", "/扫码", "/二维码", "/scan"},
 		Handle: func(sender *Sender) interface{} {
 			rsp, err := httplib.Post("https://api.kukuqaq.com/jd/qrcode").Response()
 			if err != nil {
@@ -356,6 +356,7 @@ var codeSignals = []CodeSignal{
 				})
 			} else {
 				if getLimit(sender.UserID, 1) {
+					sender.Reply("开始查询，请稍候！")
 					sender.handleJdCookies(func(ck *JdCookie) {
 						sender.Reply(ck.Query())
 					})
