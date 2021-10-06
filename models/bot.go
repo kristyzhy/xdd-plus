@@ -252,7 +252,7 @@ var handleMessage = func(msgs ...interface{}) interface{} {
 							}
 						}
 					} else {
-						sender.Reply(fmt.Sprintf("无效，请重新抓取"))
+						sender.Reply(fmt.Sprintf("无效，请重新登陆后抓取"))
 					}
 				}
 				go func() {
