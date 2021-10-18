@@ -1,13 +1,11 @@
 package models
 
 import (
-	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/beego/beego/v2/client/httplib"
 	"github.com/beego/beego/v2/core/logs"
-	"io/ioutil"
+	"github.com/beego/beego/v2/server/web"
 	"regexp"
 	"strings"
 	"time"
@@ -95,8 +93,8 @@ func (sender *Sender) handleJdCookies(handle func(ck *JdCookie)) error {
 			}
 		}
 		if !ok {
-			sender.Reply("你尚未绑定🐶东账号，请发送帮助，根据教程手动抓Cookie后发送到此绑定，提交后即可发送查询，查询账户资产信息")
-			return errors.New("你尚未绑定🐶东账号，请发送帮助，根据教程手动抓Cookie后发送到此绑定，提交后即可发送查询，查询账户资产信息")
+			sender.Reply("你尚未绑定🐶东账号，请发送帮助，根据教程手动抓Cookie后发送到此绑定，提交后即可发送查询")
+			return errors.New("你尚未绑定🐶东账号，请发送帮助，根据教程手动抓Cookie后发送到此绑定，提交后即可发送查询")
 		}
 	} else {
 		cks = LimitJdCookie(cks, a)
@@ -140,30 +138,44 @@ var codeSignals = []CodeSignal{
 		},
 	},
 	{
-		Command: []string{"/qrcode", "/扫码", "/二维码", "/scan"},
+		Command: []string{"qrcode", "扫码", "二维码", "scan"},
 		Handle: func(sender *Sender) interface{} {
-			rsp, err := httplib.Post("https://api.kukuqaq.com/jd/qrcode").Response()
+			url := fmt.Sprintf("http://127.0.0.1:%d/api/login/qrcode.png?tp=%s&uid=%d&gid=%d", web.BConfig.Listen.HTTPPort, sender.Type, sender.UserID, sender.ChatID)
+			if sender.Type == "tgg" {
+				url += fmt.Sprintf("&mid=%v&unm=%v", sender.MessageID, sender.Username)
+			}
+			rsp, err := httplib.Get(url).Response()
 			if err != nil {
 				return nil
 			}
-			body, err1 := ioutil.ReadAll(rsp.Body)
-			if err1 == nil {
-				fmt.Println(string(body))
-			}
-			s := &QQuery{}
-			if len(body) > 0 {
-				json.Unmarshal(body, &s)
-			}
-			logs.Info(s.Data.QqLoginQrcode.Bytes)
-			ddd, _ := base64.StdEncoding.DecodeString(s.Data.QqLoginQrcode.Bytes) //成图片文件并把文件写入到buffer
-			err2 := ioutil.WriteFile("./output.jpg", ddd, 0666)                   //buffer输出到jpg文件中（不做处理，直接写到文件）
-			if err2 != nil {
-				logs.Error(err2)
-			}
-			//ddd, _ := base64.StdEncoding.DecodeString("data:image/png;base64,"+s.Data.QqLoginQrcode.Bytes)
-			return "data:image/png;base64," + s.Data.QqLoginQrcode.Bytes
+			return rsp
 		},
 	},
+	//{
+	//	Command: []string{"qrcode", "扫码", "二维码", "scan"},
+	//	Handle: func(sender *Sender) interface{} {
+	//		rsp, err := httplib.Post("https://api.kukuqaq.com/jd/qrcode").Response()
+	//		if err != nil {
+	//			return nil
+	//		}
+	//		body, err1 := ioutil.ReadAll(rsp.Body)
+	//		if err1 == nil {
+	//			fmt.Println(string(body))
+	//		}
+	//		s := &QQuery{}
+	//		if len(body) > 0 {
+	//			json.Unmarshal(body, &s)
+	//		}
+	//		logs.Info(s.Data.QqLoginQrcode.Bytes)
+	//		ddd, _ := base64.StdEncoding.DecodeString(s.Data.QqLoginQrcode.Bytes) //成图片文件并把文件写入到buffer
+	//		err2 := ioutil.WriteFile("./output.jpg", ddd, 0666)                   //buffer输出到jpg文件中（不做处理，直接写到文件）
+	//		if err2 != nil {
+	//			logs.Error(err2)
+	//		}
+	//		//ddd, _ := base64.StdEncoding.DecodeString("data:image/png;base64,"+s.Data.QqLoginQrcode.Bytes)
+	//		return "data:image/png;base64," + s.Data.QqLoginQrcode.Bytes
+	//	},
+	//},
 	{
 		Command: []string{"sign", "1打卡1"},
 		Handle: func(sender *Sender) interface{} {
@@ -356,12 +368,12 @@ var codeSignals = []CodeSignal{
 				})
 			} else {
 				if getLimit(sender.UserID, 1) {
-					sender.Reply("开始查询，请稍候！")
+                sender.Reply("开始查询，请稍候！")
 					sender.handleJdCookies(func(ck *JdCookie) {
 						sender.Reply(ck.Query())
 					})
 				} else {
-					sender.Reply(fmt.Sprintf("每日限查询%d次，已超过次数，请明天再来", Config.Lim))
+					sender.Reply(fmt.Sprintf("为防止频繁查询，每日限查询%d次，已超过次数，请明天再来", Config.Lim))
 				}
 			}
 
@@ -382,7 +394,7 @@ var codeSignals = []CodeSignal{
 						sender.Reply(ck.Query1())
 					})
 				} else {
-					sender.Reply(fmt.Sprintf("每日限查询%d次，已超过次数，请明天再来", Config.Lim))
+					sender.Reply(fmt.Sprintf("为防止频繁查询，每日限查询%d次，已超过次数，请明天再来", Config.Lim))
 				}
 			}
 
@@ -430,10 +442,12 @@ var codeSignals = []CodeSignal{
 		Admin:   true,
 		Handle: func(sender *Sender) interface{} {
 			qq := Int(sender.Contents[0])
+			logs.Info(qq)
 			if len(sender.Contents) > 1 {
-				sender.Contents = sender.Contents[1:]
+				//sender.Contents = sender.Contents[1:]
+				logs.Info(sender.Contents[1:])
 				AdddCoin(qq, Int(sender.Contents[1]))
-				sender.Reply(fmt.Sprintf("你获得%d枚互助值。", Int(sender.Contents[1])))
+				sender.Reply(fmt.Sprintf("%d已增加%d枚互助值。", qq, Int(sender.Contents[1])))
 			}
 			return nil
 		},
@@ -441,7 +455,7 @@ var codeSignals = []CodeSignal{
 	/*
 		{
 			Command: []string{"我要钱", "给点钱", "我干", "给我钱", "给我", "我要"},
-            Admin:   true,
+             Admin:   true,
 			Handle: func(sender *Sender) interface{} {
 				cost := Int(sender.JoinContens())
 				if cost <= 0 {
@@ -522,7 +536,7 @@ var codeSignals = []CodeSignal{
 		//},
 		{
 			Command: []string{"赌一把"},
-            Admin:   true,
+             Admin:   true,
 			Handle: func(sender *Sender) interface{} {
 
 				cost := Int(sender.JoinContens())
@@ -560,7 +574,7 @@ var codeSignals = []CodeSignal{
 	*/
 	{
 		Command: []string{"许愿", "愿望", "wish", "hope", "want"},
-        		Admin:   true,
+        Admin:   true,
 		Handle: func(sender *Sender) interface{} {
 			ct := sender.JoinContens()
 			if ct == "" {
@@ -779,14 +793,14 @@ var codeSignals = []CodeSignal{
 		},
 	},
 	{
-		Command: []string{"降级"},
+		Command: []string{"降1级"},
         Admin:   true,
 		Handle: func(sender *Sender) interface{} {
 			return "滚"
 		},
 	},
 	{
-		Command: []string{"。。。"},
+		Command: []string{"。。。。。"},
         Admin:   true,
 		Handle: func(sender *Sender) interface{} {
 			return "你很无语吗？"
@@ -873,7 +887,7 @@ var codeSignals = []CodeSignal{
 						}
 						if nck, err := GetJdCookie(ck.PtPin); err == nil {
 							nck.InPool(ck.PtKey)
-							msg := fmt.Sprintf("更新账号成功，%s", ck.PtPin)
+							msg := fmt.Sprintf("更新账号%s成功", ck.PtPin)
 							sender.Reply(msg)
 							logs.Info(msg)
 						} else {
