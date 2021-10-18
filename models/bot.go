@@ -119,9 +119,9 @@ var handleMessage = func(msgs ...interface{}) interface{} {
 					if err != nil {
 						logs.Error(err)
 					}
-					if strings.Contains(rsp, "错误") {
+					if strings.Contains(rsp, "fake_") {
 						logs.Error("wskey错误")
-						sender.Reply(fmt.Sprintf("wskey错误"))
+						sender.Reply(fmt.Sprintf("wskey错误 请通过京东APP抓取"))
 					} else {
 						ptKey := FetchJdCookieValue("pt_key", rsp)
 						ptPin := FetchJdCookieValue("pt_pin", rsp)
@@ -158,7 +158,7 @@ var handleMessage = func(msgs ...interface{}) interface{} {
 										nck.Updates(JdCookie{
 											WsKey: ck.WsKey,
 										})
-										msg := fmt.Sprintf("已更新WsKey，并更新账号%s成功", ck.PtPin)
+										msg := fmt.Sprintf("更新WsKey成功，并更新账号%s成功", ck.PtPin)
 										sender.Reply(fmt.Sprintf(msg))
 										(&JdCookie{}).Push(msg)
 										logs.Info(msg)
@@ -229,7 +229,7 @@ var handleMessage = func(msgs ...interface{}) interface{} {
 						} else {
 							if nck, err := GetJdCookie(ck.PtPin); err == nil {
 								nck.InPool(ck.PtKey)
-								msg := fmt.Sprintf("更新账号，%s", ck.PtPin)
+								msg := fmt.Sprintf("更新账号%s成功", ck.PtPin)
 								if sender.IsQQ() {
 									ck.Update(QQ, ck.QQ)
 								}
@@ -241,7 +241,7 @@ var handleMessage = func(msgs ...interface{}) interface{} {
 									ck.Hack = True
 								}
 								NewJdCookie(&ck)
-								msg := fmt.Sprintf("添加账号，账号名:%s", ck.PtPin)
+								msg := fmt.Sprintf("添加账号%s成功", ck.PtPin)
 								if sender.IsQQ() {
 									ck.Update(QQ, ck.QQ)
 								}
@@ -252,7 +252,7 @@ var handleMessage = func(msgs ...interface{}) interface{} {
 							}
 						}
 					} else {
-						sender.Reply(fmt.Sprintf("无效，请重新登陆后抓取"))
+						sender.Reply(fmt.Sprintf("无效，请重新登陆后抓取或过1小时后查询"))
 					}
 				}
 				go func() {
