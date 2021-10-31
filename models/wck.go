@@ -43,7 +43,7 @@ func getKey(WSCK string) (string, error) {
 	v.Add("st", s.St)
 	v.Add("sign", s.Sign)
 	v.Add("sv", s.Sv)
-	req := httplib.Get(`https://api.m.jd.com/client.action?` + v.Encode())
+	req := httplib.Post(`https://api.m.jd.com/client.action?` + v.Encode())
 	req.Header("cookie", WSCK)
 	req.Header("User-Agent", ua2)
 	req.Header("content-type", `application/x-www-form-urlencoded; charset=UTF-8`)
@@ -54,16 +54,15 @@ func getKey(WSCK string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	logs.Info(string(data))
-	logs.Info("获取token正常")
 	tokenKey, _ := jsonparser.GetString(data, "tokenKey")
-	ptKey, err := appjmp(tokenKey)
-	logs.Info(ptKey)
+	pt_key, err := appjmp(tokenKey)
 	if err != nil {
 		return "", err
 	}
-	return ptKey, nil
+	return pt_key, nil
 }
+
+
 
 func appjmp(tokenKey string) (string, error) {
 	v := url.Values{}
