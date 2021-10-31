@@ -83,6 +83,6 @@ func appjmp(tokenKey string) (string, error) {
 		return "", err
 	}
 	cookies := strings.Join(rsp.Header.Values("Set-Cookie"), " ")
-	pt_key := core.FetchCookieValue(cookies, "pt_key")
+	//pt_key := core.FetchCookieValue(cookies, "pt_key")
 	return cookies, nil
 }
