@@ -54,14 +54,16 @@ func getKey(WSCK string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	logs.Info(string(data))
+	logs.Info("获取token正常")
 	tokenKey, _ := jsonparser.GetString(data, "tokenKey")
-	pt_key, err := appjmp(tokenKey)
+	ptKey, err := appjmp(tokenKey)
+	logs.Info(ptKey)
 	if err != nil {
 		return "", err
 	}
-	return pt_key, nil
+	return ptKey, nil
 }
-
 
 
 func appjmp(tokenKey string) (string, error) {
