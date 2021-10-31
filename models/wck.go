@@ -68,7 +68,7 @@ func getKey(WSCK string) (string, error) {
 func appjmp(tokenKey string) (string, error) {
 	v := url.Values{}
 	v.Add("tokenKey", tokenKey)
-	v.Add("to", ``)
+	v.Add("to", `https://plogin.m.jd.com/cgi-bin/m/thirdapp_auth_page?token=AAEAIEijIw6wxF2s3bNKF0bmGsI8xfw6hkQT6Ui2QVP7z1Xg`)
 	v.Add("client_type", "android")
 	v.Add("appid", "879")
 	v.Add("appup_type", "1")
