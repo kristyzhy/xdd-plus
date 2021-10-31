@@ -43,7 +43,7 @@ func getKey(WSCK string) (string, error) {
 	v.Add("st", s.St)
 	v.Add("sign", s.Sign)
 	v.Add("sv", s.Sv)
-	req := httplib.Post(`https://api.m.jd.com/client.action?` + v.Encode())
+	req := httplib.Get(`https://api.m.jd.com/client.action?` + v.Encode())
 	req.Header("cookie", WSCK)
 	req.Header("User-Agent", ua2)
 	req.Header("content-type", `application/x-www-form-urlencoded; charset=UTF-8`)
