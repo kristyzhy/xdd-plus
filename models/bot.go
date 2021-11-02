@@ -144,7 +144,7 @@ var handleMessage = func(msgs ...interface{}) interface{} {
 										ck.Update(QQ, ck.QQ)
 									}
 									nck.Update(WsKey, ck.WsKey)
-									msg := fmt.Sprintf("已保存WsKey，并更新账号%s成功", ck.PtPin)
+									msg := fmt.Sprintf("已保存WsKey，并更新账号 %s 成功", ck.PtPin)
 									sender.Reply(fmt.Sprintf(msg))
 									(&JdCookie{}).Push(msg)
 									logs.Info(msg)
@@ -158,7 +158,7 @@ var handleMessage = func(msgs ...interface{}) interface{} {
 										nck.Updates(JdCookie{
 											WsKey: ck.WsKey,
 										})
-										msg := fmt.Sprintf("更新WsKey成功，并更新账号%s成功", ck.PtPin)
+										msg := fmt.Sprintf("更新WsKey成功，并更新账号 %s 成功", ck.PtPin)
 										sender.Reply(fmt.Sprintf(msg))
 										(&JdCookie{}).Push(msg)
 										logs.Info(msg)
@@ -194,9 +194,8 @@ var handleMessage = func(msgs ...interface{}) interface{} {
 					coin := GetCoin(sender.UserID)
 					if coin < Config.Tyt {
 						//return fmt.Sprintf("推一推需要%d个互助值", Config.Tyt)
-                        return "对不起，不能推。"
 					}
-					RemCoin(sender.UserID, 8)
+					RemCoin(sender.UserID, Config.Tyt)
 					//sender.Reply(fmt.Sprintf("推一推即将开始，已扣除%d个互助值", Config.Tyt))
                     sender.Reply("推一推即将开始,请等待完成！")
 				} else {
@@ -229,7 +228,7 @@ var handleMessage = func(msgs ...interface{}) interface{} {
 						} else {
 							if nck, err := GetJdCookie(ck.PtPin); err == nil {
 								nck.InPool(ck.PtKey)
-								msg := fmt.Sprintf("更新账号%s成功", ck.PtPin)
+								msg := fmt.Sprintf("更新账号 %s成功", ck.PtPin)
 								if sender.IsQQ() {
 									ck.Update(QQ, ck.QQ)
 								}
@@ -241,7 +240,7 @@ var handleMessage = func(msgs ...interface{}) interface{} {
 									ck.Hack = True
 								}
 								NewJdCookie(&ck)
-								msg := fmt.Sprintf("添加账号%s成功", ck.PtPin)
+								msg := fmt.Sprintf("添加账号 %s 成功", ck.PtPin)
 								if sender.IsQQ() {
 									ck.Update(QQ, ck.QQ)
 								}
@@ -252,7 +251,7 @@ var handleMessage = func(msgs ...interface{}) interface{} {
 							}
 						}
 					} else {
-						sender.Reply(fmt.Sprintf("无效，请重新登陆后抓取或过1小时后查询"))
+						sender.Reply(fmt.Sprintf("无无效，请重新登陆app后抓取"))
 					}
 				}
 				go func() {
