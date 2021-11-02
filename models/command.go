@@ -363,7 +363,7 @@ var codeSignals = []CodeSignal{
 	{
 		Command: []string{"查询2", "query"},
 		Handle: func(sender *Sender) interface{} {
-			 sender.Reply("开始查询，请稍候！新添加或更新的账号请过1分钟之后再来查询。")
+			 sender.Reply("开始查询，请稍候！新添加或更新的账号请使用查询2。")
 			if sender.IsAdmin {
 				sender.handleJdCookies(func(ck *JdCookie) {
 					sender.Reply(ck.Query())
@@ -384,7 +384,7 @@ var codeSignals = []CodeSignal{
 	{
 		Command: []string{"查询", "query"},
 		Handle: func(sender *Sender) interface{} {
-			 sender.Reply("开始查询，请稍候！此查询时间较久，请耐心等待，如长时间无响应，可以尝试回复【查询2】。新添加或更新的账号请过1分钟之后再来查询。")
+			 sender.Reply("开始查询，请稍候！此查询时间较久，请耐心等待，新添加或更新的账号请使用查询2")
 			if sender.IsAdmin {
 				sender.handleJdCookies(func(ck *JdCookie) {
 					sender.Reply(ck.Query1())
